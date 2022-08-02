@@ -1,0 +1,8 @@
+The repository contains the following files:
+
+	- install_openfoam_dependencies_ubuntu: Run this script with 'sudo' in order to install OpenFOAM dependencies on Debian/Ubuntu distributions.
+	- install_openfoam: Run this script to install OpenFOAM. Remember to set the desired version (look at the variable VERSION) and the installation folder (set BASE_INSTALL_DIR and eventually HOME_DIR). 
+
+Remember to run the scripts with './file_name > log_filename' to generate a log file. Alternatively, if you want to see the outputs in real-time, you may use the command '| tee' istead of '>'.
+
+NB You might make the file executable using 'chmod +x filename'

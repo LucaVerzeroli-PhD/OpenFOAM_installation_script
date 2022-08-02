@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# Choose the OpenFOAM version you want to install and the final location of the installation
+
+APP=OpenFOAM
+VERSION=2112
+#VERSION=2206
+HOME_DIR="/home/lverzeroli01/"
+BASE_INSTALL_DIR="$HOME_DIR/openfoam"
+
+mkdir -p $BASE_INSTALL_DIR
+cd $BASE_INSTALL_DIR
+echo "Downlaoding ${APP}"
+echo "Downlaoding OpenFOAM-v${VERSION}"
+wget -nv "https://sourceforge.net/projects/openfoam/files/v$VERSION/OpenFOAM-v$VERSION.tgz"
+echo "Downlaoding ThirdParty-v${VERSION}"
+wget -nv "https://sourceforge.net/projects/openfoam/files/v$VERSION/ThirdParty-v$VERSION.tgz"
+
+echo "Untar ${APP}"
+echo "Untar OpenFOAM-v${VERSION}"
+tar -xzf OpenFOAM-v$VERSION.tgz
+echo "Untar ThirdParty-v${VERSION}"
+tar -xzf ThirdParty-v$VERSION.tgz
+
+echo "Compiling ${APP}-v${VERSION} from source"
+cd OpenFOAM-v$VERSION
+pattern='^projectDir=\"\$HOME/OpenFOAM'
+replace='projectDir=\"${BASE_INSTALL_DIR}/openfoam2112'
+sed -i -e "s|${pattern}|${replace}|" 'etc/bashrc'
+
+pattern='^\.\/makeSCOTCH \|\| warnBuildIssues SCOTCH'
+replace='\.\/makeSCOTCH -gcc \|\| warnBuildIssues SCOTCH'
+sed -i -e "s|${pattern}|${replace}|" '../ThirdParty-v2112/Allwmake'
+
+pattern='^cc          = gcc'
+replace='cc          = mpicc'
+sed -i -e "s|${pattern}|${replace}|" 'wmake/rules/General/Gcc/c'
+
+export pattern='^CC          = g++ -std=c++11'
+export replace='CC          = mpicxx -std=c++11'
+sed -i -e "s|${pattern}|${replace}|" 'wmake/rules/General/Gcc/c++'
+
+source 'etc/bashrc'
+export WM_NCOMPPROCS=$SLURM_NPROCS
+
+./Allwmake -j -s -q -l
+
+cd ..
+mkdir -p ${BASE_INSTALL_DIR}/openfoam$VERSION
+mv OpenFOAM-v$VERSION ${BASE_INSTALL_DIR}/openfoam$VERSION/
+mv ThirdParty-v$VERSION ${BASE_INSTALL_DIR}/openfoam$VERSION/
+
+rm OpenFOAM-v$VERSION.tgz
+rm ThirdParty-v$VERSION.tgz
+
+source ${BASE_INSTALL_DIR}/openfoam$VERSION/OpenFOAM-v$VERSION/etc/bashrc
+foamInstallationTest
+foamTestTutorial -full incompressible/simpleFoam/pitzDaily

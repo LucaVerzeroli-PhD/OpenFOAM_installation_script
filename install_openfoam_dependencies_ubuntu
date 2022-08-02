@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Read documentation for updates. Look at: https://develop.openfoam.com/Development/openfoam/-/blob/master/doc/Build.md 
+# Run the script with sudo
+
+apt-get update
+apt-get -y install build-essential autoconf autotools-dev cmake gawk gnuplot
+apt-get -y install flex libfl-dev libreadline-dev zlib1g-dev openmpi-bin libopenmpi-dev mpi-default-bin mpi-default-dev
+apt-get -y install libgmp-dev libmpfr-dev libmpc-dev
+
+apt-get -y install libfftw3-dev libscotch-dev libptscotch-dev libboost-system-dev libboost-thread-dev libcgal-dev
